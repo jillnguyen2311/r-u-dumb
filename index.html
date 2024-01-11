@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>No Pop-up Window</title>
+  <style>
+    body {
+      display: flex;
+      flex-wrap: wrap; /* Allow flex items to wrap to the next line */
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      font-size: 50px;
+    }
+
+    div {
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border: solid 2px black;
+      border-radius: 5px;
+      margin: 5px; /* Add margin to the buttons for spacing */
+    }
+
+    button:hover {
+      background-color: rgb(227, 224, 224);
+    }
+
+    @media screen and (max-width: 600px) {
+      body {
+        font-size: 30px;
+      }
+
+      button {
+        padding: 8px 16px;
+        font-size: 14px;
+        position: relative; /* Use relative positioning for mobile devices */
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div>
+  <p id="popup-message">Are you dumb?</p>
+  <button onclick="startRunning()">Yes</button>
+  <button onclick="moveButton()">No</button>
+</div>
+
+<script>
+  function startRunning() {
+    const message = document.getElementById('popup-message');
+    message.innerText = 'I knew it!';
+    hideButtons();
+  }
+
+  function moveButton() {
+    const oldNoButton = document.querySelector('button:last-child'); // Select the last button ("No")
+    const newNoButton = oldNoButton.cloneNode(true); // Clone the button
+
+    let offsetX, offsetY;
+    
+    // Ensure the new offset is not zero
+    do {
+      offsetX = calculateRandomOffset();
+      offsetY = calculateRandomOffset();
+    } while (Math.abs(offsetX) < 30 || Math.abs(offsetY) < 30); // Ensure a larger gap
+
+    const oldRect = oldNoButton.getBoundingClientRect();
+    let newLeft = oldRect.left + offsetX;
+    let newTop = oldRect.top + offsetY;
+
+    // Ensure the new position stays within the viewport
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    const maxLeft = 0.8 * (viewportWidth - newNoButton.clientWidth); // 90% of the remaining width
+    const maxTop = 0.8 * (viewportHeight - newNoButton.clientHeight); // 90% of the remaining height
+
+    newLeft = Math.max(0, Math.min(newLeft, maxLeft));
+    newTop = Math.max(0, Math.min(newTop, maxTop));
+
+    // Ensure the new position avoids overlapping with the message
+    const messageRect = document.getElementById('popup-message').getBoundingClientRect();
+    const minDistance = 50;
+
+    if (newLeft < messageRect.right + minDistance) {
+      newLeft = messageRect.right + minDistance;
+    }
+
+    if (newTop < messageRect.bottom + minDistance) {
+      newTop = messageRect.bottom + minDistance;
+    }
+
+    newNoButton.style.position = 'absolute'; // Use absolute positioning for desktop
+    newNoButton.style.left = `${newLeft}px`;
+    newNoButton.style.top = `${newTop}px`;
+
+    oldNoButton.style.display = 'none'; // Hide the old button
+    document.querySelector('div').appendChild(newNoButton); // Add the new button to the parent
+  }
+
+  function hideButtons() {
+    const buttons = document.querySelectorAll('button');
+    buttons.forEach(button => button.style.display = 'none');
+  }
+
+  function calculateRandomOffset() {
+    // Random offset between -100 and 100 pixels
+    return Math.floor(Math.random() * 200) - 100;
+  }
+</script>
+
+</body>
+</html>
